@@ -2,9 +2,11 @@
 .text
 .org 0x20
 
-izvorna_koda_pocisceno: .asciz ""
-.align
 izvorna_koda: .asciz " \n\n stev1: .var 0xf123 @ komentar 1\n @prazna vrstica \n stev2: .var 15\nstev3: .var 128\n_start:\n mov r1, #5 @v r1 premakni 5\nmov r2, #1\nukaz3: add r1, #1\nb _start"
+.align
+izvorna_koda_pocisceno: .space 120
+.align
+tabela_oznak: .space 100
 
 .align
 .global _start

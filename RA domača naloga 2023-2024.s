@@ -15,6 +15,7 @@ _start:
     mov r4, #0 @ zacnemo z vrednost 0, te ne bomo zapisali v nov niz
                @ tukaj bo tudi prej vpisani znak, da bomo z njim primerjali -> ni " " ali "\n" za "\n" ali " "
 
+@ Korak 1: Čiščenje kode
 zanka: 
     ldrb r3, [r2]
 
@@ -68,7 +69,7 @@ isci_konec_vrstice:
 konec: 
 	strb r3, [r2] @ na koncu damo 0
 
-@#######################################################
+@Korak 2: čiščenje praznih vrstic
     adr r1, izvorna_koda_pocisceno
     adr r2, izvorna_koda
 druga_zanka:
@@ -95,7 +96,7 @@ else:
     b druga_zanka
 drugi_konec:
 
-@#######################################################
+@ Korak 3: Tabela oznak
     adr r1, izvorna_koda
     adr r3, tabela_oznak
     mov r4, #0

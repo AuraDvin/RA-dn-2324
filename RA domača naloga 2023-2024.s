@@ -1,4 +1,3 @@
-@TODO: pojdi spet skozi pocisceno kodo in odstrani prazne vrstice, ter presledke na koncu vrstic, potem premakni niz na originalno mesto v pomnilniku 
 .text
 .org 0x20
 
@@ -44,7 +43,12 @@ ni_nasl_vrstica:
 ni_presledek: 
 
     cmp r3, #64 @ primerjamo za komentar -> v zanko ki isce "\n" Nic ne pisemo do takrat v niz
-        beq isci_konec_vrstice 
+        bne pisemo
+		cmp r4, #10 @ prejšnji "\n"
+			subeq r1, r1, #1
+		cmp r4, #32 @ prejšnji " " 
+			subeq r1, r1, #1
+		b isci_konec_vrstice 
     
 
 pisemo:
@@ -63,6 +67,20 @@ isci_konec_vrstice:
     b isci_konec_vrstice  @ ponovi zanko
 
 konec: 
-@TODO: replace with part 2 code
+	strb r3, [r2] @ na koncu damo 0
+
+    adr r1, izvorna_koda_pocisceno
+    adr r2, izvorna_koda
+druga_zanka:
+    ldrb r3, [r1]
+    cmp r3, #0
+		strb r3, [r2]
+        beq drugi_konec
+    strb r3, [r2]
+    add r2, r2, #1
+    add r1, r1, #1
+    b druga_zanka
+drugi_konec:
+
 
 _end: b _end

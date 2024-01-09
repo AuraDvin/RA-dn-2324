@@ -50,7 +50,6 @@ ni_presledek:
 			subeq r1, r1, #1
 		b isci_konec_vrstice 
     
-
 pisemo:
     mov r4, r3 @ vrednost damo v "prejsnjega"
     strb r4, [r1], #1 @ zapisemo na pomnilnik, in se premaknemo za 1
@@ -69,18 +68,84 @@ isci_konec_vrstice:
 konec: 
 	strb r3, [r2] @ na koncu damo 0
 
+@#######################################################
     adr r1, izvorna_koda_pocisceno
     adr r2, izvorna_koda
 druga_zanka:
-    ldrb r3, [r1]
+    ldrb r3, [r1] @ kar bomo prepisali
+    ldrb r4, [r1, #1] @ naslednji znak 
+
     cmp r3, #0
-		strb r3, [r2]
+        streqb r3, [r2]
         beq drugi_konec
+    
+    cmp r3, #':' @ zapisujemo :
+        cmpeq r4, #10 @ naslednji je "\n"
+            bne else
+            strb r3, [r2]
+			mov r3, #32
+			strb r3, [r2, #1]
+            add r1, r1, #2 @ Preskočimo "\n"
+            add r2, r2, #2 @ gremo na naslednji znak
+            b druga_zanka
+else:
     strb r3, [r2]
     add r2, r2, #1
     add r1, r1, #1
     b druga_zanka
 drugi_konec:
 
+@#######################################################
+    adr r1, izvorna_koda
+    adr r3, tabela_oznak
+    mov r4, #0
 
+tretja_zanka:
+    ldrb r2, [r1]
+    cmp r2, #0 
+        beq _end
+
+    cmp r2, #':'
+        beq nasli_oznako
+    
+    cmp r2, #10
+        addeq r4, r4, #1
+
+    add r1, r1, #1
+    b tretja_zanka
+    
+nasli_oznako:
+        ldrb r2, [r1]
+        cmp r2, #10 @ find if "\n"
+            addeq r1, r1, #1
+            beq do_konca_oznake
+        cmpne r1, #0x20 @ ali je prišel do origin
+            beq do_konca_oznake
+
+        sub r1, r1, #1
+        b nasli_oznako
+    do_konca_oznake:
+        ldrb r2, [r1]
+        cmp r2, #':'
+            moveq r2, #0
+            streqb r2, [r3] @ asciz 0 na koncu niza
+            addeq r3, r3, #1 @ premaknimo na nasl naslov
+            beq konec_oznake
+        strb r2, [r3]
+        add r1, r1, #1
+		add r3, r3, #1
+        b do_konca_oznake
+
+    konec_oznake:
+        @ r3 je naslov v pomnilniku kjer se je zdaj končal niz
+        tst r3, #1 
+        bne liho
+        strh r4, [r3]
+        add r3, r3, #2
+		add r1, r1, #1
+        b tretja_zanka
+    liho: 
+        strb r2, [r3]
+        add r3, r3, #1
+        b konec_oznake
 _end: b _end
